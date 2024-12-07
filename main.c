@@ -1,6 +1,7 @@
 #include "header.h"
 
 int main(int argc, char *argv[]) {
+	//loadingAnimation();
 	hide_cur();
 	LinkedList ListItemResto;
 	AddressLinkedList tempLinkList, tempLinkList2;
@@ -9,24 +10,37 @@ int main(int argc, char *argv[]) {
 	DataChild DC;
 	DataParent DP;
 	ReportPaper paper;
-	initPaper(&paper, 0, "-", "-", "-", 0, 0, 0, 0, 0);
 	createEmpty(&nota);
-	initDefaultMakananMinuman(&ListItemResto);
+    createEmptyLinkedList(&ListItemResto);
+    initPaper(&paper, 0, "-", "-", "-", 0, 0, 0, 0, 0);
+    
+    loadDataFromFile(&nota, &ListItemResto, &paper, "restaurant_data.txt");
+    if(LinkedListIsEmpty(ListItemResto)) {
+        initDefaultMakananMinuman(&ListItemResto);
+    }
 	int menu, nomorNt=0, i;
 	int nomor_Nota = 0, nomor_nota2 = 0, nomor_meja = 0, totalItem= 0;
 
 	float total_harga = 0, harga_item = 0;
 	float saldoToko = 0, uang;
 	int inValue=1;
+	int inValue2=2;
 	str tanggal_Nota, nama_item, tipe_item;
 	char kb, confirm;
 	int xTemp, yTemp;
-	int count_item = 0, count_nota = 0;
+	int count_item, count_nota = 0;
 	int jumlah1, jumlah2;
 	str name1, name2;
-	//loadingAnimation();
+	if (isEmpty(nota))
+	{
+		count_nota = 0;
+	} else {
+		count_nota = getLastParent(nota)->dataParent.nomorNota %100;
+	}
+	
+	
 	menuPertama(inValue);
-	do
+	do	
 	{
 		system("cls");
 		laGrandeSign();
@@ -64,6 +78,7 @@ int main(int argc, char *argv[]) {
 				printDataLinkedList(ListItemResto, 82, 5, "makanan");
 				printDataLinkedList(ListItemResto, 108, 5, "minuman");
 				printMainMenuKasir(50, 5, inValue);
+				kb = getch();
 				if (inValue == 0 && kb == 13) // menu kasir 1, buat nota pesanan baru
 				{
 					system("cls");
@@ -90,7 +105,7 @@ int main(int argc, char *argv[]) {
 						yTemp++;
 					}
 					get_current_date(&tanggal_Nota);
-					DP = makeDataParent(generateDateforNotaId()*100+count_nota, tanggal_Nota, nomor_meja, total_harga, count_item, false);
+					DP = makeDataParent(generateDateforNotaId()*100+count_nota, tanggal_Nota, nomor_meja, total_harga, count_item, false, false);
 					insertLastParent(&nota, DP);
 					tempParent = findParent(nota, DP.nomorNota);
 					
@@ -157,8 +172,8 @@ int main(int argc, char *argv[]) {
 						}
 						tempParent->dataParent.totalHarga += total_harga;
 						tempParent->dataParent.totalItem += count_item;
-						tempLinkList->data.jumlah +=count_item;
-						tempLinkList->data.totalPenjualan += total_harga;
+						// tempLinkList->data.jumlah +=count_item;
+						// tempLinkList->data.totalPenjualan += total_harga;
 						yTemp++;
 						gotoxy(xTemp, yTemp);
 						printf("[?] Ingin menambahkan item lagi? y/n : "); 
@@ -166,7 +181,7 @@ int main(int argc, char *argv[]) {
 						gotoxy(xTemp, yTemp);
 						scanf(" %c", &confirm);
 						if (confirm=='n') {
-							kb = 'w';
+							//kb = 'w';
 							yTemp++;
 							gotoxy(xTemp, yTemp);
 							printf("[*] Berhasil menambahkan item");
@@ -175,6 +190,7 @@ int main(int argc, char *argv[]) {
 							gotoxy(xTemp, yTemp);
 							printf("[*] Press space...");
 							resetColor();
+							getch();
 						} else {
 							yTemp++;
 						}
@@ -185,9 +201,11 @@ int main(int argc, char *argv[]) {
 						system("cls");
 						errorMessageParentNULL(50, 5);
 						resetColor();
+						getch();
 					} else {
 						system("cls");
-						printAllParent(nota);
+						//printAllParent(nota);
+						printAllParentWithPaymentCheck(nota, false);
 						xTemp = 50;
 						yTemp = 5;
 						count_item = 0;
@@ -195,7 +213,7 @@ int main(int argc, char *argv[]) {
 						gotoxy(xTemp, yTemp);
 						printf("[?] Masukkan nomor nota yang ingin ditambahkan pesanan: ");scanf("%d", &nomor_Nota);
 						tempParent = findParent(nota, nomor_Nota);
-						if (tempParent == NULL)
+						if (tempParent == NULL || tempParent->dataParent.paymentState == true)
 						{
 							yTemp++;
 							gotoxy(xTemp, yTemp);
@@ -265,8 +283,8 @@ int main(int argc, char *argv[]) {
 								
 								tempParent->dataParent.totalHarga += total_harga;
 								tempParent->dataParent.totalItem += count_item;
-								tempLinkList->data.jumlah +=count_item;
-								tempLinkList->data.totalPenjualan += total_harga;
+								// tempLinkList->data.jumlah +=count_item;
+								// tempLinkList->data.totalPenjualan += total_harga;
 								yTemp++;
 								gotoxy(xTemp, yTemp);
 								printf("[?] Ingin menambahkan item lagi? y/n : "); 
@@ -283,6 +301,7 @@ int main(int argc, char *argv[]) {
 									gotoxy(xTemp, yTemp);
 									printf("[*] Press space...");
 									resetColor();
+									getch();
 								} else {
 									yTemp++;
 								}
@@ -295,24 +314,27 @@ int main(int argc, char *argv[]) {
 					{
 						system("cls");
 						errorMessageParentNULL(50, 6);
+						getch();
 					} else {
 						system("cls");
 						xTemp = 50;
 						yTemp = 5;
-						printAllParent(nota);
+						//printAllParent(nota);
+						printAllParentWithPaymentCheck(nota, false);
 						gotoxy(xTemp, yTemp);
 						printf("[?] Masukkan nota yang ingin dipindahkan: ");scanf("%d", &nomor_Nota);
 						
-						if (findParent(nota, nomor_Nota)== NULL)
+						if (findParent(nota, nomor_Nota)== NULL || findParent(nota, nomor_Nota)->dataParent.paymentState == true)
 						{
 							yTemp+=2;
 							gotoxy(xTemp, yTemp);
 							printf("[!] Nomor nota tidak ditemukan");
+							getch();
 						} else {
 							yTemp+=2;
 							gotoxy(xTemp, yTemp);
 							printf("[?] Masukkan nota tujuan: ");scanf("%d", &nomor_nota2);
-							if (findParent(nota, nomor_nota2) == NULL || nomor_Nota == nomor_nota2)
+							if (findParent(nota, nomor_nota2) == NULL || nomor_Nota == nomor_nota2 || findParent(nota, nomor_nota2)->dataParent.paymentState == true)
 							{
 								yTemp+=2;
 								gotoxy(xTemp, yTemp);
@@ -321,6 +343,7 @@ int main(int argc, char *argv[]) {
 								yTemp+=2;
 								gotoxy(xTemp, yTemp);
 								printf("[*] Press space...");
+								getch();
 								resetColor();
 							} else {
 								tempParent = findParent(nota, nomor_Nota);
@@ -348,6 +371,7 @@ int main(int argc, char *argv[]) {
 								yTemp+=2;
 								gotoxy(xTemp, yTemp);
 								printf("[*] Press space...");
+								getch();
 								resetColor();
 							}
 							
@@ -361,17 +385,23 @@ int main(int argc, char *argv[]) {
 					{
 						system("cls");
 						errorMessageParentNULL(50, 6);
+						getch();
 					} else {
+						saldoToko = 0;
+						jumlah1 = 0;
+						jumlah1 = 0;
 						system("cls");
 						xTemp = 50;
 						yTemp = 5;
-						printAllParent(nota);
+						//printAllParent(nota);
+						printAllParentWithPaymentCheck(nota, false);
 						gotoxy(xTemp, yTemp);
 						printf("[?] Masukkan nomor nota yang ingin dibayarkan: ");scanf("%d", &nomor_Nota);
 						tempParent = findParent(nota, nomor_Nota);
-						if (tempParent == NULL) {
+						if (tempParent == NULL || tempParent->dataParent.paymentState == true) {
 							yTemp+=2;
 							errorMessageParentNULL(xTemp, yTemp);
+							getch();
 						} else {
 							system("cls");
 							printParent(tempParent);
@@ -394,7 +424,14 @@ int main(int argc, char *argv[]) {
 								yTemp+=2;
 								gotoxy(xTemp, yTemp);
 								printf("[SUCCESS] Berhasil melakukan transaksi untuk nota %d", tempParent->dataParent.nomorNota);
-								saldoToko += tempParent->dataParent.totalHarga;
+								yTemp+=2;
+								blue();
+								gotoxy(xTemp, yTemp);
+								printf("[*] Kembaliannya : Rp %.2f", uang - tempParent->dataParent.totalHarga);
+								resetColor();
+								sumItemSold(&ListItemResto, tempParent);
+								tempParent->dataParent.paymentState = true;
+								//saldoToko += tempParent->dataParent.totalHarga;
 								get_current_date(&tanggal_Nota);
 								tempLinkList = findKategoriTerbanyak(ListItemResto, "makanan");
 								tempLinkList2 = findKategoriTerbanyak(ListItemResto, "minuman");
@@ -407,18 +444,19 @@ int main(int argc, char *argv[]) {
 									jumlah1 = tempLinkList->data.jumlah;
 									strcpy(name1, tempLinkList->data.itemName);
 								}
+
 								if (tempLinkList2 == NULL)
 								{
 									strcpy(name2, "-");
 									jumlah2 = 0;
 								}else {
 									jumlah2 = tempLinkList2->data.jumlah;
-									strcpy(name1, tempLinkList->data.itemName);
+									strcpy(name2, tempLinkList2->data.itemName);
 								}
 								
 								inputPaper(	
 									&paper, 
-									saldoToko, 
+									tempParent->dataParent.totalHarga, 
 									tanggal_Nota, 
 									name1, 
 									name2,
@@ -428,17 +466,19 @@ int main(int argc, char *argv[]) {
 									countTotaItemlLinkListByKategori(ListItemResto,"minuman"),
 									countTotalItemLinkList(ListItemResto)
 								);
-								deleteAtParent(&nota, nomor_Nota);
+								
+								//deleteAtParent(&nota, nomor_Nota);
 								blue();
 								yTemp+=2;
 								gotoxy(xTemp, yTemp);
 								printf("[*] Press space...");
+								getch();
 								resetColor();
 							}
 						}
 					}
 				}
-				else if(inValue == 4 && kb == 13 ) {
+				else if(inValue == 4 && kb == 13 ) { // menu kasir 4, print omzet
 
 					//if (paper.totalKeseluruhanItem>0)
 					//{
@@ -455,11 +495,13 @@ int main(int argc, char *argv[]) {
 						{
 							system("cls");
 							errorMessageParentNULL(50, 9);
+							getch();
 						}else {
-								system("cls");
+							system("cls");
 							xTemp = 50;
 							yTemp = 5;
-							printAll(nota);
+							//printAll(nota);
+							printAllParentWithPaymentCheck(nota, false);
 							gotoxy(xTemp, yTemp);
 							printf("Split Nota");
 							yTemp++;
@@ -468,17 +510,17 @@ int main(int argc, char *argv[]) {
 							yTemp++;
 							gotoxy(xTemp, yTemp);
 							scanf("%d", &nomor_Nota);
-							if (findParent(nota, nomor_Nota) != NULL)
+							if (findParent(nota, nomor_Nota) != NULL && findParent(nota, nomor_Nota)->dataParent.paymentState == false)
 							{
 								tempParent = findParent(nota, nomor_Nota);
 								yTemp++;
 								gotoxy(xTemp, yTemp);
-								printf("Berapa jumlah nota yang ingin dipisah? (maksimal %d):", tempParent->dataParent.totalItem-1);
+								printf("Berapa jumlah nota barunya? (maksimal %d):", tempParent->dataParent.totalItem-1);
 								yTemp++;
 								gotoxy(xTemp, yTemp);
 								scanf("%d", &jumlah1);
 								if (jumlah1 < tempParent->dataParent.totalItem) {
-									for(i = 0; i<jumlah1; i++) {
+									for(i = 1; i<=jumlah1; i++) {
 										count_nota++;
 										system("cls");
 										xTemp = 50;
@@ -493,7 +535,7 @@ int main(int argc, char *argv[]) {
 										} else {
 											get_current_date(&tanggal_Nota);
 											nomor_nota2 = generateDateforNotaId()*100+count_nota;
-											DP = makeDataParent(nomor_nota2, tempParent->dataParent.tanggalNota, tempParent->dataParent.nomorMeja, 0, 0, tempParent->dataParent.statusProduksi);
+											DP = makeDataParent(nomor_nota2, tempParent->dataParent.tanggalNota, tempParent->dataParent.nomorMeja, 0, 0, tempParent->dataParent.statusProduksi, false);
 											insertLastParent(&nota, DP);
 											tempParent2 = findParent(nota, nomor_nota2);
 											do{
@@ -503,7 +545,7 @@ int main(int argc, char *argv[]) {
 												yTemp = 5;
 												printAllChild(tempParent);
 												gotoxy(xTemp, yTemp-2);
-												printf("Nota baru: %d | Jumlah item: %d", tempParent2->dataParent.nomorNota, tempParent2->dataParent.totalItem);
+												printf("Nota baru: %d | Jumlah item: %d | nota ke -%d", tempParent2->dataParent.nomorNota, tempParent2->dataParent.totalItem, i);
 												gotoxy(xTemp, yTemp);
 												printf("Masukkan nama item: ");
 												
@@ -514,7 +556,8 @@ int main(int argc, char *argv[]) {
 												{
 													jumlah2++;
 													DC = popDataItem(nota, tempParent, nama_item);
-													printf("\n LOG: %s", DC.namaItem);	
+													deleteAtChild(nota, tempParent, nama_item); 
+													//printf("\n LOG: %s", DC.namaItem);	
 													insertLastChild(nota, nomor_nota2, DC);
 													tempParent2->dataParent.totalItem += jumlah2;
 													tempParent2->dataParent.totalHarga += DC.hargaItem;
@@ -525,7 +568,7 @@ int main(int argc, char *argv[]) {
 													printf("Apakah ingin menambah item lain? (y/n):");
 													yTemp++;
 													gotoxy(xTemp, yTemp);
-													confirm = getch();
+													scanf("%c", &confirm);
 													if (confirm == 'n')
 													{
 														yTemp+=2;
@@ -557,17 +600,138 @@ int main(int argc, char *argv[]) {
 									yTemp+=2;
 									gotoxy(xTemp, yTemp);
 									printf("[*] Jumlah nota tidak boleh lebih dari %d", tempParent->dataParent.totalItem);
+									getch();
 								}
 							} else {
 								system("cls");
 								errorMessageParentNULL(50, 9);
+								getch();
 							}
-						}
+						}		
+				} else if(inValue == 6 && kb == 13 ) { // menu kasir 6, update menu resto
+					inValue2 = 1;
+					system("cls");
+					xTemp = 50;
+					yTemp = 5;
+					do
+					{
+						system("cls");
+						keyLogicMenuUpdateItem(confirm,&inValue2);
+						menuUpdateItemResto(inValue2, 50, 5);
+						printDataLinkedList(ListItemResto, 82, 5, "makanan");
+						printDataLinkedList(ListItemResto, 108, 5, "minuman");
+						keyGuide(90, 1);
+						confirm = getch();
+						if (inValue2 == 1 && confirm == 13) { // menu update, tambah item
+							confirm = 'l';
+							do{
+								system("cls");
+								printDataLinkedList(ListItemResto, 82, 5, "makanan");
+								printDataLinkedList(ListItemResto, 108, 5, "minuman");
+								xTemp = 50;
+								yTemp = 5;
+								gotoxy(xTemp, yTemp);
+								printf("===[ Tambah Item Resto ]===");
+								yTemp++;
+								gotoxy(xTemp, yTemp);
+								printf("Masukkan nama item :");
+								yTemp++;
+								gotoxy(xTemp, yTemp);
+								fflush(stdin);gets(nama_item);
+								while (1)
+								{
+									yTemp++;
+									gotoxy(xTemp, yTemp);
+									printf("Masukkan harga item :");
+									yTemp++;
+									gotoxy(xTemp, yTemp);
+									scanf("%f", &harga_item);
+									if(harga_item >0)break;
+									else{
+										yTemp++;
+										gotoxy(xTemp, yTemp);
+										printf("[*] Harga item tidak boleh 0 atau kurang");
+									}
+								}
+								
+								while (1)
+								{
+									yTemp++;
+									gotoxy(xTemp, yTemp);
+									printf("Masukkan jenis Kategori Item");
+									yTemp++;
+									gotoxy(xTemp, yTemp);
+									printf("| Makanan | Minuman |");
+									yTemp++;
+									gotoxy(xTemp, yTemp);
+									fflush(stdin);gets(tipe_item);
+									if(strcmpi(tipe_item, "makanan")==0 || strcmpi(tipe_item, "minuman")==0)break;
+									yTemp++;
+									gotoxy(xTemp, yTemp);
+									printf("[*] Pilih salah satu kategori yang tersedia");
+								}
+								// insert new item ke linkedlist
+								
+								tempLinkList = alokasiLinkedList(makeDataLinkedlist(nama_item, tipe_item, 0, harga_item, 0));
+								insertLastLinkedList(&ListItemResto ,tempLinkList);
+								blue();
+								yTemp+=2;
+								gotoxy(xTemp, yTemp);
+								printf("[*] Item baru berhasil ditambahkan");
+								yTemp++;
+								gotoxy(xTemp, yTemp);
+								printf("Press any key...");
+								resetColor();
+								getch();
+								break;
+							}while(confirm != 27);
+							confirm = 'l';
+						} else if(inValue2 == 2 && confirm ==13){ // menu update, delete item
+							confirm = 'l';
+							system("cls");
+							do{
+								system("cls");
+								xTemp = 50;
+								yTemp = 5;
+								gotoxy(xTemp, yTemp);
+								printf("===[ Hapus Item Resto ]===");
+								
+								while (1)
+								{
+									printDataLinkedList(ListItemResto, 82, 5, "makanan");
+									printDataLinkedList(ListItemResto, 108, 5, "minuman");
+									yTemp++;
+									gotoxy(xTemp, yTemp);
+									printf("Masukkan nama item");
+									yTemp++;
+									gotoxy(xTemp, yTemp);
+									fflush(stdin);gets(nama_item);
+									tempLinkList = findLinkList(ListItemResto, nama_item);
+									if (tempLinkList!= NULL)
+									{
+										break;
+									}
+									yTemp++;
+									gotoxy(xTemp, yTemp);
+									printf("[!] Item tidak ditemukan");
+								}
+								deleteAtLinkedList(&ListItemResto, tempLinkList);
+								yTemp+=2;
+								gotoxy(xTemp, yTemp);
+								printf("[*] Item berhasil dihapus");
+								yTemp+=2;
+								gotoxy(xTemp, yTemp);
+								printf("[*] Press any key");
+								getch();
+								break;
+							}while(confirm!= 27);
+							confirm = 'l';
+						}	
 						
-						
-						
+					} while (confirm != 27);
+					confirm = 'l';
 				}
-				kb = getch();
+				//kb = getch();
 
 			} while (kb!=27);
 			kb = 'w';
@@ -577,6 +741,7 @@ int main(int argc, char *argv[]) {
 			{
 				system("cls");
 				errorMessageParentNULL(50, 10);
+				getch();
 			} else {
 				AddressParent  pointer = nota.firstParent;
 				kb = 'w';
@@ -584,13 +749,13 @@ int main(int argc, char *argv[]) {
 				do
 				{
 					system("cls");
-						
+					keyGuide(90, 8);
 					switch (kb)
 					{
 						case 'w':
 							if (nota.firstParent->next== NULL)
 							{
-									
+								
 							} else {
 								if(pointer != nota.firstParent) {
 									pointer = getBeforeWithProductionFalse(nota, pointer);
@@ -602,7 +767,7 @@ int main(int argc, char *argv[]) {
 						case 's':
 							if (nota.firstParent->next== NULL)
 							{
-								
+							
 							} else {
 								if (pointer->next != NULL) {
 										//pointer = pointer->next;
@@ -616,7 +781,7 @@ int main(int argc, char *argv[]) {
 							break;
 					}
 					printPaperDapur(nota, pointer);
-					keyGuide(90, 8);
+					kb = getch();
 					if (kb == 13) // event listener ketika user memilih salah satu data
 					{
 						kb = 'w';
@@ -638,6 +803,7 @@ int main(int argc, char *argv[]) {
 							gotoxy(xTemp, yTemp);
 							printf("Tekan 'space'");
 							resetColor();
+							
 						} else {
 							yTemp++;
 							gotoxy(xTemp, yTemp);
@@ -651,14 +817,17 @@ int main(int argc, char *argv[]) {
 						
 					}
 					
-					kb = getch();
+					// kb = getch();
 				} while (kb != 27);
 				kb = 'w';
 			}
 			
-			getch();
+			//getch();
 		}
 	} while (kb!=27);
 	system("cls");
+	saveDataToFile(nota, ListItemResto, paper, "restaurant_data.txt");
+  printf("\n\n\n\t\t\tData berhasil disimpan!\n");
+  Sleep(1000);  // Memberikan feedback visual kepada user
 	return 0;
 }

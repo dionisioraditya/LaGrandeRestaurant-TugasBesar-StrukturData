@@ -11,7 +11,6 @@ typedef char str [50];
 typedef struct Node * AddressLinkedList;
 typedef struct
 {
-	int id;
 	str itemName;
 	str kategori;
 	int jumlah;
@@ -44,6 +43,7 @@ typedef struct DataParent{
 	float totalHarga;
 	int totalItem;
 	bool statusProduksi;
+	bool paymentState;
 }DataParent;
 
 typedef struct Child {
@@ -88,6 +88,8 @@ void printMainMenuKasir(int x, int y, int input);
 void menuPertama(int menu);
 void errorMessageParentNULL(int x, int y);
 void printPaperDapur(MultiList L, AddressParent target);
+void menuUpdateItemResto(int value, int x, int y);
+void keyLogicMenuUpdateItem(char kb, int *value);
 // common header
 void get_current_date(str *date_str);
 int generateDateforNotaId();
@@ -117,6 +119,9 @@ void initPaper (
     int totalKeseluruhanItem
 );
 void cetakPaper(ReportPaper paper, int x, int y);
+void saveDataToFile(MultiList L, LinkedList itemList, ReportPaper paper, const char * filename);
+void loadDataFromFile(MultiList *L, LinkedList *itemList, ReportPaper *paper, const char * filename);
+void sumItemSold(LinkedList * linklist, AddressParent p);
 // LinkedList
 bool LinkedListIsEmpty(LinkedList L);
 bool LinkedListIsOneElement(LinkedList L);
@@ -127,7 +132,7 @@ void insertLastLinkedList(LinkedList *L, AddressLinkedList newNode);
 void deleteFirstLinkedList(LinkedList *L);
 void deleteAtLinkedList(LinkedList *L, AddressLinkedList del);
 void deleteLastLinkedList(LinkedList *L);
-DataItem makeDataLinkedlist(int id, str itemName, str kategori, int jumlah, float harga, float totalPenjualan);
+DataItem makeDataLinkedlist(str itemName, str kategori, int jumlah, float harga, float totalPenjualan);
 void initDefaultMakananMinuman(LinkedList *L);
 void printDataLinkedList(LinkedList L, int x, int y, str kategori);
 AddressLinkedList findLinkList(LinkedList L, str namaItem);
@@ -139,7 +144,7 @@ int countTotalItemLinkList(LinkedList L);
 void createEmpty(MultiList *L);
 bool isEmpty(MultiList L);
 bool haveChild(AddressParent addresParent);
-DataParent makeDataParent(int nomorNota, str tanggalNota, int nomorMeja, float totalHarga, int totalIten, bool status);
+DataParent makeDataParent(int nomorNota, str tanggalNota, int nomorMeja, float totalHarga, int totalItem, bool status, bool paymentState);
 AddressParent alokasiParent(DataParent data);
 AddressParent findParent(MultiList L, int data);
 AddressParent getLastParent(MultiList L);
@@ -153,8 +158,10 @@ void deleteLastParent(MultiList *L);
 void deleteAllChild(AddressParent parent);
 void printParent(AddressParent parent);
 void printAllParent(MultiList L);
+void printAllParentWithPaymentCheck(MultiList L, bool paymentCheck);
 void Backup_DeleteParent(MultiList *L, int hapus, int backup);
 void printAll(MultiList L);
+void printAllWithPaymentCheck(MultiList L, bool checkPayment);
 AddressParent getNextWithProductionFalse(AddressParent target);
 AddressParent getBeforeWithProductionFalse(MultiList L, AddressParent target);
 // child header MultiList

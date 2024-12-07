@@ -10,14 +10,15 @@ bool isEmpty(MultiList L) {
 bool haveChild(AddressParent addresParent) {
   return addresParent->firstChild != NULL;
 }
-DataParent makeDataParent(int nomorNota, str tanggalNota, int nomorMeja, float totalHarga, int totalIten, bool status) {
+DataParent makeDataParent(int nomorNota, str tanggalNota, int nomorMeja, float totalHarga, int totalItem, bool status, bool paymentState) {
     DataParent data;
     data.nomorNota = nomorNota;
     strcpy(data.tanggalNota, tanggalNota);
     data.nomorMeja = nomorMeja;
     data.totalHarga = totalHarga;
-    data.totalItem = totalIten;
+    data.totalItem = totalItem;
     data.statusProduksi = status;
+    data.paymentState = paymentState;
   return data;
 }
 AddressParent alokasiParent(DataParent data) {
@@ -138,10 +139,13 @@ void printParent(AddressParent parent) {
     printf("\n [-] Nomor Nota            : %d", parent->dataParent.nomorNota);
     printf("\n [-] Tanggal Pesanan       : %s", parent->dataParent.tanggalNota);
     printf("\n [-] Nomor Meja            : %d", parent->dataParent.nomorMeja);
-    if(parent->dataParent.statusProduksi== false)printf("\n [-] Status Produksi       : Proses");
+    if(parent->dataParent.statusProduksi== false)printf("\n [-] Status Produksi       : \033[1;31mProses");
     else printf("\n [-] Status Produksi       : \033[1;32mSelesai"); resetColor();
     printf("\n [-] Total Item            : %d", parent->dataParent.totalItem);
     printf("\n [-] Total Harga           : Rp %.2f", parent->dataParent.totalHarga);
+    if(parent->dataParent.paymentState == false)printf("\n [-] Status Pembayaran     : \033[1;31mBelum dibayar");
+    else printf("\n [-] Status Pembayaran     : \033[1;32mSudah dibayar");
+    resetColor();
 }
 void printAllParent(MultiList L) {
   AddressParent temp = L.firstParent;
@@ -152,7 +156,18 @@ void printAllParent(MultiList L) {
     temp = temp->next;
   }
 }
-
+void printAllParentWithPaymentCheck(MultiList L, bool paymentCheck) {
+  AddressParent temp = L.firstParent;
+  while (temp != NULL)
+  {
+    if (temp->dataParent.paymentState == paymentCheck)
+    {
+      printParent(temp);
+      printf("\n");
+    }
+    temp = temp->next;
+  }
+}
 AddressParent getLastParent(MultiList L) {
   AddressParent P = L.firstParent;
   if (P->next== NULL)
@@ -205,6 +220,19 @@ void printAll(MultiList L) {
     printParent(temp);
     printAllChild(temp);
     printf("\n");
+    temp = temp->next;
+  }
+}
+void printAllWithPaymentCheck(MultiList L, bool checkPayment) {
+  AddressParent temp = L.firstParent;
+  while (temp !=NULL)
+  {
+    if (temp->dataParent.paymentState == checkPayment)
+    {
+      printParent(temp);
+      printAllChild(temp);
+      printf("\n");
+    }
     temp = temp->next;
   }
 }

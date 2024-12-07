@@ -60,7 +60,7 @@ void deleteFirstChild(MultiList L, int kodeParent) {
     {
       AddressChild temp = parent->firstChild;
       parent->firstChild = parent->firstChild->next;
-
+      temp->next = NULL;
       free(temp);
     }
   }
@@ -112,26 +112,24 @@ int countChild(AddressParent target) {
 }
 void deleteAtChild(MultiList l , AddressParent p, str itemName) {
   AddressChild ch = p->firstChild;
-  if (ch!= NULL)
-  {
-    if (strcmpi(ch->dataChild.namaItem, itemName) == 0)
-    {
-      deleteFirstChild(l, p->dataParent.nomorNota);
-    } else if(isLastChild(p, itemName)){
-      deleteLastChild(l, p->dataParent.nomorNota);
-    } else {
-      while (ch->next!= NULL)
-      {
-        if (strcmpi(ch->next->dataChild.namaItem, itemName) == 0)
-        {
-          AddressChild del = ch->next;
-          ch->next = ch->next->next;
-          del->next = NULL;
-          free(del);
-        }
-        ch = ch->next;
+  if (ch != NULL) {
+    // If it's the first node
+    if (strcmpi(ch->dataChild.namaItem, itemName) == 0) {
+      p->firstChild = ch->next;
+      free(ch);
+      return;  // Important: Return after deletion
+    }
+    
+    // For other nodes
+    while (ch->next != NULL) {
+      if (strcmpi(ch->next->dataChild.namaItem, itemName) == 0) {
+        AddressChild del = ch->next;
+        ch->next = ch->next->next;
+        free(del);
+        return;  // Important: Return after deletion
       }
-    } 
+      ch = ch->next;
+    }
   }
 }
 DataChild popDataItem(MultiList l, AddressParent P, str item) {
@@ -140,7 +138,7 @@ DataChild popDataItem(MultiList l, AddressParent P, str item) {
   while(CH != NULL) {
     if(strcmpi(CH->dataChild.namaItem, item)==0) {
       data = CH->dataChild;
-      deleteAtChild(l, P, item);
+      //deleteAtChild(l, P, item);
       return data;
     }
     CH =CH->next;
@@ -161,24 +159,31 @@ bool dataisExist(AddressParent p, str namaItem) {
 }
 bool isLastChild(AddressParent p, str namaItem) {
   AddressChild ch = p->firstChild;
-  if (strcmpi(p->firstChild->dataChild.namaItem, namaItem)==0)
-  {
+  
+  // Handle empty list
+  if (ch == NULL) {
     return false;
   }
   
-  while (ch!=NULL)
-  {
-    if (strcmpi(ch->dataChild.namaItem, namaItem)==0)
-    {
-      break;
+  // Handle single node
+  if (ch->next == NULL) {
+    return strcmpi(ch->dataChild.namaItem, namaItem) == 0;
+  }
+  
+  // Handle first node
+  if (strcmpi(ch->dataChild.namaItem, namaItem) == 0) {
+    return false;
+  }
+  
+  // Find the node
+  while (ch != NULL) {
+    if (ch->next != NULL && strcmpi(ch->next->dataChild.namaItem, namaItem) == 0) {
+      // Found the item - it's last if there's nothing after it
+      return ch->next->next == NULL;
     }
     ch = ch->next;
   }
-  if (ch->next == NULL)
-  {
-    return true;
-  } else {
-    return false;
-  }
+  
+  return false;  // Item not found
   
 }

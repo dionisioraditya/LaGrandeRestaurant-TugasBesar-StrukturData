@@ -1,8 +1,9 @@
 #include "header.h"
 void printMainMenuKasir(int x, int y, int input) {
+    blue();
     gotoxy(x, y);
     printf("=== [ Menu Utama Kasir] ===");
-
+    resetColor();
     if (input==0) green(); else resetColor();
     y++;
     gotoxy(x, y);
@@ -72,7 +73,7 @@ void loadingAnimation() {
             printf("=");
             
         }
-        Sleep(20);
+        //Sleep(0);
     }
 }
 void menuPertama(int menu) {
@@ -188,4 +189,35 @@ void printPaperDapur(MultiList L, AddressParent target) {
       
     P = P->next;
   }    
+}
+void menuUpdateItemResto(int value, int x, int y) {
+  if (value==1)
+  {
+    green();
+    gotoxy(x, y);
+    printf("[+] Tambah Item");
+    resetColor();
+    y++;
+    gotoxy(x, y);
+    printf("[+] Hapus Item");
+  } else if(value == 2) {
+    gotoxy(x, y);
+    printf("[+] Tambah Item");
+    green();
+    y++;
+    gotoxy(x, y);
+    printf("[+] Hapus Item");
+    resetColor();
+  }
+  
+}
+void keyLogicMenuUpdateItem(char kb, int *value) {
+  if (kb == 'w')
+  {
+    *value = 1;
+  } 
+  if (kb == 's')
+  {
+    *value = 2;
+  }
 }

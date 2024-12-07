@@ -60,44 +60,44 @@ void initDefaultMakananMinuman(LinkedList *L) {
     DataItem item;
     AddressLinkedList P;
     // Makanan
-    item = makeDataLinkedlist(1, "Nasi Goreng", "makanan", 0, 13000, 0);
+    item = makeDataLinkedlist("Nasi Goreng", "makanan", 0, 13000, 0);
     P = alokasiLinkedList(item);
     insertLastLinkedList(L, P);
 
-    item = makeDataLinkedlist(2, "Fuyung Hay", "makanan", 0, 12000, 0);
+    item = makeDataLinkedlist("Fuyung Hay", "makanan", 0, 12000, 0);
     P = alokasiLinkedList(item);
     insertLastLinkedList(L, P);
 
-    item = makeDataLinkedlist(3, "Mie Goreng", "makanan", 0, 15000, 0);
+    item = makeDataLinkedlist("Mie Goreng", "makanan", 0, 15000, 0);
     P = alokasiLinkedList(item);
     insertLastLinkedList(L, P);
 
-    item = makeDataLinkedlist(4, "Karee", "makanan", 0, 20000, 0);
+    item = makeDataLinkedlist("Karee", "makanan", 0, 20000, 0);
     P = alokasiLinkedList(item);
     insertLastLinkedList(L, P);
 
-    item = makeDataLinkedlist(5, "Cap Cay", "makanan", 0, 22000, 0);
+    item = makeDataLinkedlist("Cap Cay", "makanan", 0, 22000, 0);
     P = alokasiLinkedList(item);
     insertLastLinkedList(L, P);
 
     // minuman
-    item = makeDataLinkedlist(1, "Es Teh", "minuman", 0, 4000, 0);
+    item = makeDataLinkedlist("Es Teh", "minuman", 0, 4000, 0);
     P = alokasiLinkedList(item);
     insertLastLinkedList(L, P);
 
-    item = makeDataLinkedlist(2, "Lemon Tea", "minuman", 0, 5000, 0);
+    item = makeDataLinkedlist("Lemon Tea", "minuman", 0, 5000, 0);
     P = alokasiLinkedList(item);
     insertLastLinkedList(L, P);
 
-    item = makeDataLinkedlist(3, "Pink Lava", "minuman", 0, 15000, 0);
+    item = makeDataLinkedlist("Pink Lava", "minuman", 0, 15000, 0);
     P = alokasiLinkedList(item);
     insertLastLinkedList(L, P);
 
-    item = makeDataLinkedlist(4, "Orange Water", "minuman", 0, 7000, 0);
+    item = makeDataLinkedlist("Orange Water", "minuman", 0, 7000, 0);
     P = alokasiLinkedList(item);
     insertLastLinkedList(L, P);
 
-    item = makeDataLinkedlist(5, "Air Mineral", "minuman", 0, 3000, 0);
+    item = makeDataLinkedlist("Air Mineral", "minuman", 0, 3000, 0);
     P = alokasiLinkedList(item);
     insertLastLinkedList(L, P);
     
@@ -140,11 +140,11 @@ void inputPaper (
     strcpy(paper->tanggal, tanggal);
     strcpy(paper->makananTerbanyak, makananTerbanyak);
     strcpy(paper->minumanTerbanyak, minumanTerbanyak);
-    paper->totalMakananTerbanyak += totalMakananTerbanyak;
-    paper->totalMinumanTerbanyak += totalMinumanTerbanyak;
-    paper->totalKeseluruhanMakanan += totalKeseluruhanMakanan;
-    paper->totalKeseluruhanMinuman += totalKeseluruhanMinuman;
-    paper->totalKeseluruhanItem += totalKeseluruhanItem;
+    paper->totalMakananTerbanyak = totalMakananTerbanyak;
+    paper->totalMinumanTerbanyak = totalMinumanTerbanyak;
+    paper->totalKeseluruhanMakanan = totalKeseluruhanMakanan;
+    paper->totalKeseluruhanMinuman = totalKeseluruhanMinuman;
+    paper->totalKeseluruhanItem = totalKeseluruhanItem;
 }
 void cetakPaper(ReportPaper paper, int x, int y) {
     gotoxy(x+4, y);
@@ -176,3 +176,194 @@ void cetakPaper(ReportPaper paper, int x, int y) {
 
     
 }
+
+// fungsi menyimpan total makanan minuman terjual
+void sumItemSold(LinkedList * linklist, AddressParent p) {
+    int makanan=0, minuman=0;
+    AddressLinkedList temp;
+    AddressChild ch = p->firstChild;
+    while (ch!=NULL)
+    {
+        temp = findLinkList(*linklist, ch->dataChild.namaItem);
+        if (temp!= NULL)
+        {
+            temp->data.jumlah++;
+        }
+        ch = ch->next;
+    }
+    
+}
+// Fungsi untuk menyimpan data multilist ke file
+void saveDataToFile(MultiList L, LinkedList itemList, ReportPaper paper, const char * filename) {
+    FILE *fp = fopen(filename, "w");
+    if(fp == NULL) {
+        printf("Error: Tidak dapat membuka file untuk menyimpan data\n");
+        return;
+    }
+
+    // Menyimpan data ReportPaper
+    fprintf(fp, "REPORT_PAPER\n");
+    fprintf(fp, "%.2f\n", paper.penghasilan);
+    fprintf(fp, "%s\n", paper.tanggal);
+    fprintf(fp, "%s\n", paper.makananTerbanyak);
+    fprintf(fp, "%s\n", paper.minumanTerbanyak);
+    fprintf(fp, "%d\n", paper.totalMakananTerbanyak);
+    fprintf(fp, "%d\n", paper.totalMinumanTerbanyak);
+    fprintf(fp, "%d\n", paper.totalKeseluruhanMakanan);
+    fprintf(fp, "%d\n", paper.totalKeseluruhanMinuman);
+    fprintf(fp, "%d\n", paper.totalKeseluruhanItem);
+
+    // Menyimpan data LinkedList (item resto)
+    fprintf(fp, "ITEM_LIST\n");
+    AddressLinkedList curr = itemList.first;
+    while(curr != NULL) {
+        fprintf(fp, "%s,%s,%d,%.2f,%.2f\n", 
+            curr->data.itemName,
+            curr->data.kategori,
+            curr->data.jumlah,
+            curr->data.harga,
+            curr->data.totalPenjualan);
+        curr = curr->next;
+    }
+
+    // Menyimpan data MultiList (nota dan item)
+    fprintf(fp, "MULTILIST\n");
+    AddressParent currParent = L.firstParent;
+    while(currParent != NULL) {
+        // Simpan data parent
+        fprintf(fp, "PARENT\n");
+        fprintf(fp, "%d,%s,%d,%.2f,%d,%d,%d\n",
+            currParent->dataParent.nomorNota,
+            currParent->dataParent.tanggalNota,
+            currParent->dataParent.nomorMeja,
+            currParent->dataParent.totalHarga,
+            currParent->dataParent.totalItem,
+            currParent->dataParent.statusProduksi,
+            currParent->dataParent.paymentState);
+
+        // Simpan data child
+        AddressChild currChild = currParent->firstChild;
+        while(currChild != NULL) {
+            fprintf(fp, "CHILD\n");
+            fprintf(fp, "%s,%s,%.2f\n",
+                currChild->dataChild.namaItem,
+                currChild->dataChild.tipeItem,
+                currChild->dataChild.hargaItem);
+            currChild = currChild->next;
+        }
+        currParent = currParent->next;
+    }
+
+    fprintf(fp, "END\n");
+    fclose(fp);
+}
+
+// Fungsi untuk memuat data dari file ke multilist
+void loadDataFromFile(MultiList *L, LinkedList *itemList, ReportPaper *paper, const char * filename) {
+    FILE *fp = fopen(filename, "r");
+    if(fp == NULL) {
+        printf("Info: File data tidak ditemukan, memulai dengan data kosong\n");
+        return;
+    }
+
+    char line[256];
+    char section[20] = "";
+
+    // Reset struktur data
+    createEmpty(L);
+    createEmptyLinkedList(itemList);
+
+    while(fgets(line, sizeof(line), fp)) {
+        // Hapus newline di akhir string
+        line[strcspn(line, "\n")] = 0;
+
+        if(strcmp(line, "REPORT_PAPER") == 0) {
+            strcpy(section, "REPORT_PAPER");
+            fgets(line, sizeof(line), fp);
+            paper->penghasilan = atof(line);
+            
+            fgets(line, sizeof(line), fp);
+            line[strcspn(line, "\n")] = 0;
+            strcpy(paper->tanggal, line);
+            
+            fgets(line, sizeof(line), fp);
+            line[strcspn(line, "\n")] = 0;
+            strcpy(paper->makananTerbanyak, line);
+            
+            fgets(line, sizeof(line), fp);
+            line[strcspn(line, "\n")] = 0;
+            strcpy(paper->minumanTerbanyak, line);
+            
+            fgets(line, sizeof(line), fp);
+            paper->totalMakananTerbanyak = atoi(line);
+            
+            fgets(line, sizeof(line), fp);
+            paper->totalMinumanTerbanyak = atoi(line);
+            
+            fgets(line, sizeof(line), fp);
+            paper->totalKeseluruhanMakanan = atoi(line);
+            
+            fgets(line, sizeof(line), fp);
+            paper->totalKeseluruhanMinuman = atoi(line);
+            
+            fgets(line, sizeof(line), fp);
+            paper->totalKeseluruhanItem = atoi(line);
+        }
+        else if(strcmp(line, "ITEM_LIST") == 0) {
+            strcpy(section, "ITEM_LIST");
+            continue;
+        }
+        else if(strcmp(line, "MULTILIST") == 0) {
+            strcpy(section, "MULTILIST");
+            continue;
+        }
+        else if(strcmp(line, "PARENT") == 0) {
+            strcpy(section, "PARENT");
+            continue;
+        }
+        else if(strcmp(line, "CHILD") == 0) {
+            strcpy(section, "CHILD");
+            continue;
+        }
+        else if(strcmp(line, "END") == 0) {
+            break;
+        }
+
+        if(strcmp(section, "ITEM_LIST") == 0 && strlen(line) > 0) {
+            str itemName, kategori;
+            int jumlah;
+            float harga, totalPenjualan;
+            sscanf(line, "%[^,],%[^,],%d,%f,%f", 
+                itemName, kategori, &jumlah, &harga, &totalPenjualan);
+            
+            DataItem item = makeDataLinkedlist(itemName, kategori, jumlah, harga, totalPenjualan);
+            AddressLinkedList newNode = alokasiLinkedList(item);
+            insertLastLinkedList(itemList, newNode);
+        }
+        else if(strcmp(section, "PARENT") == 0 && strlen(line) > 0) {
+            int nomorNota, nomorMeja, totalItem, statusProduksi, paymentState;
+            str tanggalNota;
+            float totalHarga;
+            sscanf(line, "%d,%[^,],%d,%f,%d,%d,%d",
+                &nomorNota, tanggalNota, &nomorMeja, &totalHarga,
+                &totalItem, &statusProduksi, &paymentState);
+            
+            DataParent parent = makeDataParent(nomorNota, tanggalNota, nomorMeja,
+                totalHarga, totalItem, statusProduksi, paymentState);
+            insertLastParent(L, parent);
+        }
+        else if(strcmp(section, "CHILD") == 0 && strlen(line) > 0) {
+            str namaItem, tipeItem;
+            float hargaItem;
+            sscanf(line, "%[^,],%[^,],%f",
+                namaItem, tipeItem, &hargaItem);
+            
+            DataChild child = makeDataChild(namaItem, tipeItem, hargaItem);
+            AddressParent lastParent = getLastParent(*L);
+            insertLastChild(*L, lastParent->dataParent.nomorNota, child);
+        }
+    }
+
+    fclose(fp);
+}
+

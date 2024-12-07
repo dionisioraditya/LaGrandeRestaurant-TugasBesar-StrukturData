@@ -13,10 +13,9 @@ AddressLinkedList alokasiLinkedList(DataItem X) {
   temp->next = NULL;
   return temp; 
 }
-DataItem makeDataLinkedlist(int id, str itemName, str kategori, int jumlah, 
+DataItem makeDataLinkedlist(str itemName, str kategori, int jumlah, 
 float harga, float totalPenjualan) {
   DataItem temp;
-  temp.id = id;
   strcpy(temp.itemName, itemName);
   strcpy(temp.kategori, kategori);
   temp.jumlah = jumlah;
